@@ -1,0 +1,1092 @@
+================================================================================
+================================================================================
+https://viblo.asia/p/mo-hinh-front-end-moi-trong-rails-Az45bnRz5xY
+https://evilmartians.com/chronicles/evil-front-part-1
+========================================
+========================================
+rails new evil_chat --skip-coffee --skip-sprockets --skip-turbolinks --webpack --database=postgresql  -T
+rails new evil_chat --skip-coffee --skip-sprockets --skip-turbolinks --webpack -T
+...
+       rails  webpacker:install
+      create  config/webpacker.yml
+Copying webpack core config
+      create  config/webpack
+      create  config/webpack/development.js
+      create  config/webpack/environment.js
+      create  config/webpack/production.js
+      create  config/webpack/test.js
+Copying .postcssrc.yml to app root directory
+      create  .postcssrc.yml
+Copying .babelrc to app root directory
+      create  .babelrc
+Creating JavaScript app source directory
+      create  app/javascript
+      create  app/javascript/packs/application.js
+       apply  /home/koah/.rvm/gems/ruby-2.5.1/gems/webpacker-3.4.3/lib/install/binstubs.rb
+  Copying binstubs
+       exist    bin
+      create    bin/webpack
+      create    bin/webpack-dev-server
+Adding configurations
+      append  .gitignore
+Installing all JavaScript dependencies
+         run  yarn add @rails/webpacker@3.4 --tilde from "."
+yarn add v1.5.1
+info No lockfile found.
+[1/4] Resolving packages...
+[2/4] Fetching packages...
+info fsevents@1.1.3: The platform "linux" is incompatible with this module.
+info "fsevents@1.1.3" is an optional dependency and failed compatibility check. Excluding it from installation.
+[3/4] Linking dependencies...
+warning "@rails/webpacker > postcss-cssnext@3.1.0" has unmet peer dependency "caniuse-lite@^1.0.30000697".
+error An unexpected error occurred: "EROFS: read-only file system, symlink '../../../../js-yaml/bin/js-yaml.js' -> '/media/sf_ShareWithDocker/evil_chat/node_modules/@rails/webpacker/node_modules/.bin/js-yaml'".
+info If you think this is a bug, please open a bug report with the information provided in "/media/sf_ShareWithDocker/evil_chat/yarn-error.log".
+info Visit https://yarnpkg.com/en/docs/cli/add for documentation about this command.
+Installing dev server for live reloading
+         run  yarn add --dev webpack-dev-server@2.11.2 from "."
+yarn add v1.5.1
+info No lockfile found.
+[1/4] Resolving packages...
+[2/4] Fetching packages...
+info fsevents@1.1.3: The platform "linux" is incompatible with this module.
+info "fsevents@1.1.3" is an optional dependency and failed compatibility check. Excluding it from installation.
+[3/4] Linking dependencies...
+warning " > webpack-dev-server@2.11.2" has unmet peer dependency "webpack@^2.2.0 || ^3.0.0".
+warning "webpack-dev-server > webpack-dev-middleware@1.12.2" has unmet peer dependency "webpack@^1.0.0 || ^2.0.0 || ^3.0.0".
+error An unexpected error occurred: "EROFS: read-only file system, symlink '../../../multicast-dns/cli.js' -> '/media/sf_ShareWithDocker/evil_chat/node_modules/bonjour/node_modules/.bin/multicast-dns'".
+info If you think this is a bug, please open a bug report with the information provided in "/media/sf_ShareWithDocker/evil_chat/yarn-error.log".
+info Visit https://yarnpkg.com/en/docs/cli/add for documentation about this command.
+Webpacker successfully installed 🎉 🍰
+         run  bundle exec spring binstub --all
+* bin/rake: spring inserted
+* bin/rails: spring inserted
+====================
+====================
+create  config/webpacker.yml
+create  config/webpack
+create  config/webpack/development.js
+create  config/webpack/environment.js
+create  config/webpack/production.js
+create  config/webpack/test.js
+create  .postcssrc.yml
+create  .babelrc
+create  app/javascript
+create  app/javascript/packs/application.js
+create    bin/webpack
+create    bin/webpack-dev-server
+========================================
+========================================
+cd evil_chat
+stt
+========================================
+========================================
+http://guides.rubyonrails.org/configuring.html#configuring-generators
+
+config/application.rb
+...
+    config.generators do |g|
+      g.test_framework  false
+      g.stylesheets     false
+      g.javascripts     false
+      g.helper          false
+      g.channel         assets: false
+    end
+========================================
+========================================
+rm -rf app/assets
+mv app/javascript frontend
+========================================
+========================================
+app/views/layouts/application.html.erb
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>EvilChat</title>
+    <%= csrf_meta_tags %>
+
+    <%= stylesheet_link_tag    'application', media: 'all' %>
+    <%= javascript_include_tag 'application' %>
+  </head>
+
+  <body>
+    <%= yield %>
+  </body>
+</html>
+=>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>EvilChat</title>
+    <%= csrf_meta_tags %>
+
+    <%= stylesheet_pack_tag 'application' %>
+  </head>
+
+  <body>
+    <%= yield %>
+
+    <%= javascript_pack_tag 'application' %>
+  </body>
+</html>
+========================================
+========================================
+config/webpacker.yml
+default: &default
+  source_path: app/javascript
+=>
+  source_path: frontend
+========================================
+========================================
+app/controllers/application_controller.rb
+class ApplicationController < ActionController::Base
+  protect_from_forgery with: :exception
+  prepend_view_path Rails.root.join('frontend')
+end
+========================================
+========================================
+rails g controller pages home
+Running via Spring preloader in process 15666
+      create  app/controllers/pages_controller.rb
+       route  get 'pages/home'
+      invoke  erb
+      create    app/views/pages
+      create    app/views/pages/home.html.erb
+      invoke  assets
+      invoke    js
+      invoke    css
+====================
+====================
+rails g controller pages home
+FATAL: Listen error: unable to monitor directories for changes.
+Visit https://github.com/guard/listen/wiki/Increasing-the-amount-of-inotify-watchers for info on how to fix this.
+
+https://stackoverflow.com/questions/42225677/listen-error-unable-to-monitor-directories-for-changes
+https://github.com/guard/listen/wiki/Increasing-the-amount-of-inotify-watchers
+
+echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+========================================
+========================================
+config/routes.rb
+Rails.application.routes.draw do
+  root to: 'pages#home'
+end
+========================================
+========================================
+Remove everything from views/pages/home.html.erb, so it contains no code at all
+========================================
+========================================
+frontend/packs/application.js
+import './application.css';
+
+document.body.insertAdjacentHTML('afterbegin', 'Webpacker works!');
+========================================
+========================================
+touch frontend/packs/application.css
+
+frontend/packs/application.css
+html, body {
+  background: lightyellow;
+}
+========================================
+========================================
+rs
+bin/webpack-dev-server
+========================================
+========================================
+frontend/packs/application.js
+import './application.css';
+
+document.body.insertAdjacentHTML('afterbegin', 'Webpacker works!');
+
+console.log('abc')
+========================================
+========================================
+sudo chown -R $(id -u):$(id -g) .
+========================================
+========================================
+cannot remove 'development.log': Text file busy
+
+https://stackoverflow.com/questions/16764946/what-generates-the-text-file-busy-message-in-unix
+lsof development.log
+COMMAND   PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+ruby    17248 koah   15w   REG   0,44     7280  145 development.log
+
+kill 17248
+lsof development.log
+================================================================================
+================================================================================
+================================================================================
+================================================================================
+virtualbox
+========================================
+========================================
+Chrome
+========================================
+========================================
+Sublime Text
+Terminator
+========================================
+========================================
+git
+gitk
+========================================
+========================================
+curl
+zsh
+oh-my-zsh
+========================================
+========================================
+rvm
+Ruby 2.5.1
+Rails 5.1.6
+====================
+====================
+nvm
+node 9.11.1
+yarn 1.5.1
+====================
+====================
+SublimeLinter
+SublimeLinter-rubocop
+==========
+==========
+gem install rubocop
+gem list rubocop
+gem update rubocop
+gem cleanup rubocop
+gem open rubocop -e subl
+gem uninstall rubocop -v 0.53.0
+====================
+====================
+gem install rails -v 5.1.5
+gem install rails -v 5.1.6
+gem install rails -v 5.2.0
+====================
+====================
+Alignment
+SideBarEnhancements
+BracketHighlighter
+Theme - Soda
+RailsCasts Colour Scheme
+========================================
+========================================
+TODO: docker
+================================================================================
+================================================================================
+https://www.virtualbox.org/wiki/Downloads
+sudo dpkg -i virtualbox-5.2_5.2.8-121009_Ubuntu_xenial_amd64.deb
+sudo dpkg -l | grep virtualbox
+sudo dpkg -P virtualbox-5.1
+
+https://xubuntu.org/download/
+========================================
+========================================
+VirtualBox > New
+Name: koahdocker
+Type: Linux
+Version: Ubtuntu (64-bit)
+Memory size: 4096
+Create
+
+File location: ~/docker/koahdocker
+File size: 30 GB
+Hard disk file type: VDI
+Storage on physical hard disk: Fixed size
+Create
+
+VirtualBox > Settings
+General > Advanced
+Shared Clipboard: Bidirectional
+Drag'n'Drop: Bidirectional
+System > Processor
+Processor(s) : 3
+Display > Screen
+Video Memory: 128 MB
+Acceleration: Enable 2D Video Acceleration
+Network > Adapter 1
+Enable Network Adapter: Attached to: Bridged Adapter
+====================
+====================
+Preparing to install Xubuntu
+Enable Download updates while installing Xubuntu
+
+Where are you?
+New York
+====================
+====================
+Enable: View > Seamless Mode
+Devices > Insert Guest Additions CD image...
+Open Terminal Here
+sudo ./VBoxLinuxAdditions.run
+...
+Restart
+View > Seamless Mode
+Right Ctrl + L
+====================
+====================
+VirtualBox > Settings
+Shared Folders > Add Share
+Folder Path: ~/docker/koahdocker/Shared
+Folder Name: Shared
+Auto-mount
+
+Terminal
+sudo usermod -aG vboxsf koah
+ls -al /media/
+ln -s /media/sf_Shared $HOME/Shared
+Restart
+================================================================================
+================================================================================
+Chrome
+========================================
+========================================
+https://www.google.com/chrome/
+google-chrome-stable_current_amd64.deb
+
+sudo dpkg -i google-chrome-stable_current_amd64.deb
+========================================
+========================================
+https://askubuntu.com/questions/950651/google-chrome-stable-depends-libappindicator1-but-it-is-not-going-to-be-insta/950758#950758
+sudo apt-get -f install
+sudo apt-get update
+================================================================================
+================================================================================
+Sublime Text
+https://www.sublimetext.com/docs/3/linux_repositories.html
+apt
+========================================
+========================================
+Install the GPG key:
+wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
+========================================
+========================================
+Ensure apt is set up to work with https sources:
+sudo apt-get update
+sudo apt-get install -y apt-transport-https
+========================================
+========================================
+Select the channel to use:
+Stable
+echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
+========================================
+========================================
+Update apt sources and install Sublime Text
+sudo apt-get update
+sudo apt-get install -y sublime-text
+========================================
+========================================
+which subl
+/usr/bin/subl
+================================================================================
+================================================================================
+Terminator The robot future of terminals
+https://gnometerminator.blogspot.com/p/introduction.html
+sudo add-apt-repository ppa:gnome-terminator
+sudo apt-get update
+sudo apt-get install -y terminator
+================================================================================
+================================================================================
+https://www.digitalocean.com/community/tutorials/how-to-install-git-on-ubuntu-16-04
+sudo apt-get update
+sudo apt-get install -y git-core
+sudo apt-get install -y gitk
+sudo apt-get install -y tree
+====================
+====================
+sudo apt-get update
+sudo apt-get install -y git-core gitk tree
+========================================
+========================================
+git config --global user.name "Khoa Nguyen Dang"
+git config --global user.email "khoachilang@gmail.com"
+
+git config --list
+user.name=Khoa Nguyen Dang
+user.email=khoachilang@gmail.com
+========================================
+========================================
+https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/
+====================
+====================
+https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/#generating-a-new-ssh-key
+ssh-keygen -t rsa -b 4096 -C "khoachilang@gmail.com"
+Generating public/private rsa key pair.
+Enter file in which to save the key (/home/koah/.ssh/id_rsa):
+Created directory '/home/koah/.ssh'.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /home/koah/.ssh/id_rsa.
+Your public key has been saved in /home/koah/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:79DZoFzuDpNqq8MNk0YkO22x+IeVFxHof93WElnXBHo khoachilang@gmail.com
+====================
+====================
+https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/#adding-your-ssh-key-to-the-ssh-agent
+Start the ssh-agent in the background.
+eval "$(ssh-agent -s)"
+
+Add your SSH private key to the ssh-agent
+ssh-add ~/.ssh/id_rsa
+
+Add the SSH key to your GitHub account.
+subl ~/.ssh/id_rsa.pub
+====================
+====================
+https://help.github.com/articles/testing-your-ssh-connection/
+ssh -T git@github.com
+The authenticity of host 'github.com (52.74.223.119)' can't be established.
+RSA key fingerprint is SHA256:nThbg6kXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'github.com,52.74.223.119' (RSA) to the list of known hosts.
+Hi ndkhoa! You've successfully authenticated, but GitHub does not provide shell access.
+
+ssh -T git@github.com
+Warning: Permanently added the RSA host key for IP address '13.250.177.223' to the list of known hosts.
+Hi ndkhoa! You've successfully authenticated, but GitHub does not provide shell access.
+' # for end
+================================================================================
+================================================================================
+https://viblo.asia/p/terminal-bot-te-nhat-va-de-su-dung-voi-terminator-va-zsh-tren-ubuntu-pDOKjkrXzPr
+https://viblo.asia/p/hieu-ro-hon-toi-uu-va-su-dung-phim-tat-cho-terminal-ORNZqowM50n
+https://viblo.asia/p/cai-dat-oh-my-zsh-va-cau-hinh-zsh-autosuggestions-ZDEvLRybeJb
+========================================
+========================================
+sudo curl -L http://install.ohmyz.sh | sh
+sudo: curl: command not found
+
+sudo apt-get install -y curl
+========================================
+========================================
+sudo apt-get update
+sudo apt-get install -y zsh
+sudo apt-get install -y curl
+====================
+====================
+sudo apt-get update
+sudo apt-get install -y curl zsh
+====================
+====================
+sudo curl -L http://install.ohmyz.sh | sh
+========================================
+========================================
+Terminator > Right Click > Preferences > Profiles > Command
+Check on Run command as login shell
+Check on Run a custom command instead of my shell
+Custom command: zsh
+========================================
+========================================
+git init test_git && cd $_
+========================================
+========================================
+https://github.com/robbyrussell/oh-my-zsh
+Themes Agnoster
+====================
+====================
+subl ~/.zshrc
+ZSH_THEME="agnoster"
+====================
+====================
+Check directories
+ls -al ~/.fonts/
+ls: cannot access '/home/koah/.fonts/': No such file or directory
+
+ls -al ~/.config/fontconfig/conf.d
+ls: cannot access '.config/fontconfig/conf.d': No such file or directory
+
+Create directories
+mkdir ~/.fonts/
+mkdir -p ~/.config/fontconfig/conf.d
+====================
+====================
+Install Powerline Font
+wget https://github.com/powerline/powerline/raw/develop/font/PowerlineSymbols.otf
+mv PowerlineSymbols.otf ~/.fonts/
+
+wget https://github.com/powerline/powerline/raw/develop/font/10-powerline-symbols.conf
+mv 10-powerline-symbols.teconf ~/.config/fontconfig/conf.d/
+====================
+====================
+Restart terminator
+========================================
+========================================
+Plugins
+https://github.com/robbyrussell/oh-my-zsh/wiki/Plugins
+https://github.com/zsh-users
+
+subl ~/.zshrc
+plugins=(
+  git
+  sublime
+  rails
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+)
+
+zsh
+====================
+====================
+git
+
+gst
+====================
+====================
+rails
+
+rc
+====================
+====================
+sublime
+
+stt
+st <file_name>
+====================
+====================
+https://github.com/zsh-users/zsh-autosuggestions#oh-my-zsh
+echo $ZSH_CUSTOM
+/home/koah/.oh-my-zsh/custom
+
+git clone https://github.com/zsh-users/zsh-autosuggestions $ZSH_CUSTOM/plugins/zsh-autosuggestions
+
+subl ~/.zshrc
+plugins=( [plugins...] zsh-autosuggestions)
+
+zsh
+echo
+==========
+==========
+ls -al $ZSH_CUSTOM/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+st $ZSH_CUSTOM/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+=>
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=blue'
+
+zsh
+echo
+========================================
+========================================
+https://github.com/zsh-users/zsh-syntax-highlighting
+https://github.com/zsh-users/zsh-syntax-highlighting/blob/master/INSTALL.md#oh-my-zsh
+
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+
+subl ~/.zshrc
+plugins=( [plugins...] zsh-syntax-highlighting)
+
+zsh
+echo 'hello'
+================================================================================
+================================================================================
+Ruby Version Manager (RVM)
+https://rvm.io/
+Ruby 2.5.1
+Rails 5.1.6
+========================================
+========================================
+https://rvm.io/rvm/upgrading
+rvm get head
+rvm reload
+
+rvm --version
+rvm 1.29.3 (master) by Michal Papis, Piotr Kuczynski, Wayne E. Seguin [https://rvm.io]
+
+rvm list known
+========================================
+========================================
+gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+====================
+====================
+\curl -sSL https://get.rvm.io | bash -s stable
+Installation of RVM in /home/koah/.rvm/ is almost complete:
+  * To start using RVM you need to run `source /home/koah/.rvm/scripts/rvm`
+    in all your open shell windows, in rare cases you need to reopen all shell windows.
+====================
+====================
+https://rvm.io/rvm/install
+Install RVM (development version):
+\curl -sSL https://get.rvm.io | bash
+====================
+====================
+rvm --version
+rvm 1.29.3 (latest) by Michal Papis, Piotr Kuczynski, Wayne E. Seguin [https://rvm.io]
+====================
+====================
+rvm --help > rvm.help.txt
+====================
+====================
+rvm list
+rvm rubies
+# No rvm rubies installed yet. Try 'rvm help install'.
+====================
+====================
+rvm help install > rvm.help.install.txt
+rvm list known > rvm.list.known.txt
+====================
+====================
+rvm list known
+rvm install 2.5.1
+====================
+====================
+rvm list
+   ruby-2.5.1 [ x86_64 ]
+
+# Default ruby not set. Try 'rvm alias create default <ruby>'.
+
+# => - current
+# =* - current && default
+#  * - default
+====================
+====================
+ruby -v
+zsh: command not found: ruby
+====================
+====================
+https://rvm.io/rubies/default
+rvm --default use 2.5.1
+rvm use 2.5.1 --default
+==========
+==========
+rvm use 2.5.1 --default
+
+RVM is not a function, selecting rubies with 'rvm use ...' will not work.
+
+You need to change your terminal emulator preferences to allow login shell.
+Sometimes it is required to use `/bin/bash --login` as the command.
+Please visit https://rvm.io/integration/gnome-terminal/ for an example.
+
+https://stackoverflow.com/questions/4755538/rvm-is-not-working-in-zsh
+Do you have this line in your ~/.zshrc?
+[[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"
+==========
+==========
+rvm use 2.5.1 --default
+Using /home/koah/.rvm/gems/ruby-2.5.1
+==========
+==========
+gem list
+
+*** LOCAL GEMS ***
+
+bigdecimal (default: 1.3.4)
+bundler-unload (1.0.2)
+cmath (default: 1.0.0)
+csv (default: 1.0.0)
+date (default: 1.0.0)
+dbm (default: 1.0.0)
+did_you_mean (1.2.0)
+etc (default: 1.0.0)
+executable-hooks (1.4.2)
+fcntl (default: 1.0.0)
+fiddle (default: 1.0.0)
+fileutils (default: 1.0.2)
+gdbm (default: 2.0.0)
+gem-wrappers (1.4.0, 1.3.2)
+io-console (default: 0.4.6)
+ipaddr (default: 1.2.0)
+json (default: 2.1.0)
+minitest (5.10.3)
+net-telnet (0.1.1)
+openssl (default: 2.1.0)
+power_assert (1.1.1)
+psych (default: 3.0.2)
+rake (12.3.0)
+rdoc (default: 6.0.1)
+rubygems-bundler (1.4.4)
+rvm (1.11.3.9)
+scanf (default: 1.0.0)
+sdbm (default: 1.0.0)
+stringio (default: 0.0.1)
+strscan (default: 1.0.0)
+test-unit (3.2.7)
+webrick (default: 1.4.2)
+xmlrpc (0.3.0)
+zlib (default: 1.0.0)
+====================
+====================
+rvm list
+=* ruby-2.5.1 [ x86_64 ]
+
+# => - current
+# =* - current && default
+#  * - default
+====================
+====================
+ruby --version
+ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-linux]
+====================
+====================
+bundle -v
+zsh: command not found: bundle
+
+gem -v
+2.7.6
+
+gem install rails -v 5.1.6
+
+rails -v
+Rails 5.1.6
+
+bundle -v
+Bundler version 1.16.1
+================================================================================
+================================================================================
+https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-16-04
+https://github.com/creationix/nvm
+Node Version Manager - Simple bash script to manage multiple active node.js versions
+========================================
+========================================
+sudo apt-get update
+sudo apt-get install -y build-essential libssl-dev
+========================================
+========================================
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.9/install.sh | bash
+=> Compressing and cleaning up git repository
+
+=> Appending nvm source string to /home/koah/.bashrc
+=> Appending bash_completion source string to /home/koah/.bashrc
+=> Close and reopen your terminal to start using nvm or run the following to use it now:
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+====================
+====================
+st ~/.zshrc
+...
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+====================
+====================
+echo $NVM_DIR
+/home/koah/.nvm
+
+Manual upgrade
+https://github.com/creationix/nvm#manual-upgrade
+(
+  cd "$NVM_DIR"
+  git fetch origin
+  git checkout `git describe --abbrev=0 --tags --match "v[0-9]*" $(git rev-list --tags --max-count=1)`
+) && \. "$NVM_DIR/nvm.sh"
+====================
+====================
+nvm --help
+nvm --help > nvm.help.txt
+
+nvm --version
+0.33.9
+
+nvm ls
+            N/A
+node -> stable (-> N/A) (default)
+iojs -> N/A (default)
+========================================
+========================================
+https://nodejs.org/en/
+To find out the versions of Node.js that are available for installation, you can type:
+nvm ls-remote
+
+nvm ls-remote > nvm.lsremote.txt
+st nvm.lsremote.txt
+========================================
+========================================
+nvm install 9.11.1
+Downloading and installing node v9.11.1...
+Downloading https://nodejs.org/dist/v9.11.1/node-v9.11.1-linux-x64.tar.xz...
+######################################################################## 100.0%
+Computing checksum with sha256sum
+Checksums matched!
+Now using node v9.11.1 (npm v5.6.0)
+Creating default alias: default -> 9.11.1 (-> v9.11.1)
+========================================
+========================================
+nvm ls
+->      v9.11.1
+default -> 9.11.1 (-> v9.11.1)
+node -> stable (-> v9.11.1) (default)
+stable -> 9.11 (-> v9.11.1) (default)
+iojs -> N/A (default)
+lts/* -> lts/carbon (-> N/A)
+lts/argon -> v4.9.1 (-> N/A)
+lts/boron -> v6.14.1 (-> N/A)
+lts/carbon -> v8.11.1 (-> N/A)
+
+*/ # for end comment
+========================================
+========================================
+node -v
+v9.11.1
+
+npm -v
+5.6.0
+========================================
+========================================
+https://yarnpkg.com/en/
+https://yarnpkg.com/en/docs/install#debian-stable
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends yarn
+====================
+====================
+yarn --version
+1.5.1
+====================
+====================
+which yarn
+/usr/bin/yarn
+
+locate yarn
+/home/koah/.oh-my-zsh/plugins/yarn
+/home/koah/.oh-my-zsh/plugins/yarn/yarn.plugin.zsh
+================================================================================
+================================================================================
+Package Control
+https://packagecontrol.io/installation
+'Ctrl + `'
+import urllib.request,os,hashlib; h = '6f4c264a24d933ce70df5dedcf1dcaee' + 'ebe013ee18cced0ef93d5f746d80ef60'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)
+
+reloading settings Packages/User/Package Control.sublime-settings
+Package Control: No updated packages
+========================================
+========================================
+Manual
+If for some reason the console installation instructions do not work for you (such as having a proxy on your network), perform the following steps to manually install Package Control:
+
+Click the Preferences > Browse Packages… menu
+Browse up a folder and then into the Installed Packages/ folder
+Download Package Control.sublime-package and copy it into the Installed Packages/ directory
+Restart Sublime Text
+========================================
+========================================
+Ctrl + Shift + P
+Install Package
+SublimeLinter
+SublimeLinter-rubocop
+gem install rubocop
+
+locate rubocop
+/home/koah/.oh-my-zsh/custom/plugins/zsh-autosuggestions/.rubocop.yml
+
+which rubocop
+/home/koah/.rvm/gems/ruby-2.5.1/bin/rubocop
+========================================
+========================================
+http://guides.rubygems.org/command-reference/
+====================
+====================
+http://guides.rubygems.org/command-reference/#gem-install
+gem install rubocop
+====================
+====================
+http://guides.rubygems.org/command-reference/#gem-list
+gem list rubocop
+====================
+====================
+http://guides.rubygems.org/command-reference/#gem-update
+gem update rubocop
+====================
+====================
+http://guides.rubygems.org/command-reference/#gem-cleanup
+gem cleanup rubocop
+====================
+====================
+http://guides.rubygems.org/command-reference/#gem-open
+gem open rubocop -e subl
+====================
+====================
+http://guides.rubygems.org/command-reference/#gem-uninstall
+gem uninstall rubocop -v 0.53.0
+================================================================================
+================================================================================
+gem install rails -v 5.1.5
+gem install rails -v 5.1.6
+gem install rails -v 5.2.0
+rails _5.1.5_ new myblog515
+rails _5.1.6_ new myblog516
+rails _5.2.0_ new myblog520
+====================
+====================
+bundle
+The dependency tzinfo-data (>= 0) will be unused by any of the platforms Bundler is installing for. Bundler is installing for ruby but the dependency is only for x86-mingw32, x86-mswin32, x64-mingw32, java. To add those platforms to the bundle, run `bundle lock --add-platform x86-mingw32 x86-mswin32 x64-mingw32 java`.
+Fetching gem metadata from https://rubygems.org/.........
+Fetching gem metadata from https://rubygems.org/.
+Resolving dependencies...
+Bundler could not find compatible versions for gem "activesupport":
+  In snapshot (Gemfile.lock):
+    activesupport (= 5.1.6)
+
+  In Gemfile:
+    rails (= 5.1.5) was resolved to 5.1.5, which depends on
+      activesupport (= 5.1.5)
+
+    sass-rails (~> 5.0) was resolved to 5.0.7, which depends on
+      railties (< 6, >= 4.0.0) was resolved to 5.1.6, which depends on
+        activesupport (= 5.1.6)
+
+Running `bundle update` will rebuild your snapshot from scratch, using only
+the gems in your Gemfile, which may resolve the conflict.
+========================================
+========================================
+https://stackoverflow.com/questions/4693445/rvm-uninstalling-all-gems-of-a-gemset
+rvm --force gemset empty
+gem list
+gem install rails -v 5.1.6
+gem list
+rails new myblog
+rails _5.1.6_ new myblog && cd $_
+========================================
+========================================
+https://stackoverflow.com/questions/1381725/how-to-make-no-ri-no-rdoc-the-default-for-gem-install
+http://webonrails.com/2008/12/03/skiping-installation-of-ri-and-rdoc-documentation-while-installing-gems/
+================================================================================
+================================================================================
+https://packagecontrol.io/packages/Alignment
+https://www.granneman.com/webdev/editors/sublime-text/packages/how-to-install-and-use-sublime-alignment/
+
+Config
+{
+    // The mid-line characters to align in a multi-line selection, changing
+    // this to an empty array will disable mid-line alignment
+    "alignment_chars": [
+        "=", ":"
+    ]
+}
+By default, Sublime Alignment works with =
+Now it works with = and with :
+
+Using
+1. Select the lines you wish to align
+2. Press Ctrl+Alt+A (Windows & Linux) or Command+Ctrl+A (Mac OS X)
+========================================
+========================================
+https://github.com/titoBouzout/SideBarEnhancements
+In any case install it manually:
++ Download the package as a zip
++ Main menu bar - Preferences - Browse Packages
++ Create a folder named "SideBarEnhancements", then extract the repository there.
+========================================
+========================================
+https://packagecontrol.io/packages/BracketHighlighter
+Ctrl + Shift + P
+Install Package: Bracket​Highlighter
+========================================
+========================================
+https://packagecontrol.io/packages/Theme%20-%20Soda
+Ctrl + Shift + P
+Install Package: Theme - Soda
+Open your User Settings Preferences file Sublime Text -> Preferences -> Settings - User
+Add (or update) your theme entry to be "theme": "Soda Light 3.sublime-theme" or "theme": "Soda Dark 3.sublime-theme"
+Example Sublime Text 3 User Settings
+{
+  "theme": "Soda Dark 3.sublime-theme"
+}
+========================================
+========================================
+https://packagecontrol.io/packages/RailsCasts%20Colour%20Scheme
+http://media.railscasts.com/resources/textmate_theme.zip
+
+/home/koah/.config/sublime-text-3/Cache/Color Scheme - Default/
+
+Preferences - Color Scheme...
+Railscasts
+Or
+Preferences - Settings
+{
+  "color_scheme": "Cache/Color Scheme - Default/Railscasts.tmTheme",
+}
+
+
+https://askubuntu.com/questions/144698/find-a-file-by-name-using-command-line
+find ~/ -type f -name "*.tm*"
+========================================
+========================================
+{
+  "alignment_chars":
+  [
+    "=",
+    ":"
+  ],
+  "color_scheme": "Cache/Color Scheme - Default/Railscasts.tmTheme",
+  "theme": "Soda Dark 3.sublime-theme",
+  "draw_white_space": "all",
+  "font_size": 12,
+  "ignored_packages":
+  [
+    "Vintage"
+  ],
+  "rulers":
+  [
+    40,
+    80
+  ],
+  "tab_size": 2,
+  "translate_tabs_to_spaces": true,
+  "trim_trailing_white_space_on_save": true,
+  "word_wrap": "false"
+}
+========================================
+========================================
+https://unix.stackexchange.com/questions/44643/change-global-keyboard-shortcuts
+
+Go to Menu → Settings → Settings Editor,
+select "xfce4-keyboard-shortcuts",
+select xfwm4 → custom → <Alt>Space,
+then press "Reset property" button.
+Every other key combination can be set and unset there too.
+================================================================================
+================================================================================
+================================================================================
+================================================================================
+sudo apt-get install libapparmorl aufs-tools ca-certificates
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+E: Unable to locate package libapparmorl
+total 18676
+drwxr-xr-x  2 koah koah     4096 Apr 14 10:28 ./
+drwxr-xr-x 14 koah koah     4096 Apr 14 10:19 ../
+-rwxrwx---  1 koah koah 19115436 Apr 14 10:24 docker-engine_1.13.1-0_ubuntu-trusty_amd64.deb*
+========================================
+========================================
+apt.dockerproject.org
+http://apt.dockerproject.org/repo/pool/main/d/docker-engine/
+docker-engine_1.13.1-0~ubuntu-trusty_amd64.deb              08-Feb-2017  8:32  19M
+docker-engine_1.13.1-0_ubuntu-trusty_amd64.deb
+========================================
+========================================
+sudo dpkg -i docker-engine_1.13.1-0_ubuntu-trusty_amd64.deb
+Selecting previously unselected package docker-engine.
+(Reading database ... 193385 files and directories currently installed.)
+Preparing to unpack docker-engine_1.13.1-0_ubuntu-trusty_amd64.deb ...
+Unpacking docker-engine (1.13.1-0~ubuntu-trusty) ...
+dpkg: dependency problems prevent configuration of docker-engine:
+ docker-engine depends on libsystemd-journal0 (>= 201); however:
+  Package libsystemd-journal0 is not installed.
+
+dpkg: error processing package docker-engine (--install):
+ dependency problems - leaving unconfigured
+Processing triggers for man-db (2.7.5-1) ...
+Processing triggers for systemd (229-4ubuntu21.2) ...
+Processing triggers for ureadahead (0.100.0-19) ...
+Errors were encountered while processing:
+ docker-engine
+========================================
+========================================
+docker --version
+Docker version 1.13.1, build 092cba3
+========================================
+========================================
+sudo usermod -aG docker koah
+usermod: group 'docker' does not exist
+========================================
+========================================
+sudo dpkg -l | grep docker-engine
+iU  docker-engine                          1.13.1-0~ubuntu-trusty                     amd64        Docker: the open-source application container engine
+========================================
+========================================
+sudo dpkg -r docker-engine
+(Reading database ... 193590 files and directories currently installed.)
+Removing docker-engine (1.13.1-0~ubuntu-trusty) ...
+Processing triggers for man-db (2.7.5-1) ...
+================================================================================
+================================================================================
